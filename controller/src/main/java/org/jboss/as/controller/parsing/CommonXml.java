@@ -70,7 +70,6 @@ import static org.jboss.as.controller.parsing.ParseUtils.isNoNamespaceAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
 import static org.jboss.as.controller.parsing.ParseUtils.parseBoundedIntegerAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.parsePossibleExpression;
-import static org.jboss.as.controller.parsing.ParseUtils.requireAttributes;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNamespace;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoAttributes;
 import static org.jboss.as.controller.parsing.ParseUtils.requireNoContent;
@@ -101,6 +100,7 @@ import org.jboss.as.controller.operations.common.SchemaLocationAddHandler;
 import org.jboss.as.controller.operations.common.SystemPropertyAddHandler;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.persistence.ModelMarshallingContext;
+import org.jboss.as.controller.resource.AbstractSocketBindingResourceDefinition;
 import org.jboss.as.controller.resource.SocketBindingGroupResourceDefinition;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
@@ -428,28 +428,6 @@ public abstract class CommonXml implements XMLElementReader<List<ModelNode>>, XM
         }
     }
 
-    public static ModelNode parseProperties(final XMLExtendedStreamReader reader, final Namespace expectedNs) throws XMLStreamException {
-        return parseProperties(reader, expectedNs, Element.PROPERTY);
-    }
-
-    public static ModelNode parseEnvironmentVariables(final XMLExtendedStreamReader reader, final Namespace expectedNs) throws XMLStreamException {
-        return parseProperties(reader, expectedNs, Element.VARIABLE);
-    }
-
-    private static ModelNode parseProperties(final XMLExtendedStreamReader reader, final Namespace expectedNs, final Element element) throws XMLStreamException {
-        final ModelNode properties = new ModelNode();
-        while (reader.nextTag() != END_ELEMENT) {
-            requireNamespace(reader, expectedNs);
-            if (Element.forName(reader.getLocalName()) != element) {
-                throw unexpectedElement(reader);
-            }
-            final String[] array = requireAttributes(reader, Attribute.NAME.getLocalName(), Attribute.VALUE.getLocalName());
-            requireNoContent(reader);
-            properties.get(array[0]).set(array[1]);
-        }
-        return properties;
-    }
-
     protected void parseInterfaceCriteria(final XMLExtendedStreamReader reader, final Namespace expectedNs, final ModelNode interfaceModel)
             throws XMLStreamException {
         // all subsequent elements are criteria elements
@@ -750,7 +728,9 @@ public abstract class CommonXml implements XMLElementReader<List<ModelNode>>, XM
                         break;
                     }
                     case INTERFACE: {
-                        if (!interfaces.contains(value)) {
+                        AbstractSocketBindingResourceDefinition.INTERFACE.parseAndSetParameter(value, binding, reader);
+                        if (binding.get(AbstractSocketBindingResourceDefinition.INTERFACE.getName()).getType() != ModelType.EXPRESSION
+                            && !interfaces.contains(value)) {
                             throw MESSAGES.unknownInterface(value, attribute.getLocalName(),
                                     Element.INTERFACES.getLocalName(), reader.getLocation());
                         }
@@ -758,32 +738,19 @@ public abstract class CommonXml implements XMLElementReader<List<ModelNode>>, XM
                         break;
                     }
                     case PORT: {
-                        binding.get(PORT).set(parseBoundedIntegerAttribute(reader, i, 0, 65535, true));
+                        AbstractSocketBindingResourceDefinition.PORT.parseAndSetParameter(value, binding, reader);
                         break;
                     }
                     case FIXED_PORT: {
-                        binding.get(FIXED_PORT).set(Boolean.parseBoolean(value));
+                        AbstractSocketBindingResourceDefinition.FIXED_PORT.parseAndSetParameter(value, binding, reader);
                         break;
                     }
                     case MULTICAST_ADDRESS: {
-                        ModelNode mcastNode = parsePossibleExpression(value);
-                        if (mcastNode.getType() == ModelType.EXPRESSION) {
-                            binding.get(MULTICAST_ADDRESS).set(mcastNode);
-                        } else {
-                            try {
-                                final InetAddress mcastAddr = InetAddress.getByName(value);
-                                if (!mcastAddr.isMulticastAddress()) {
-                                    throw MESSAGES.invalidMulticastAddress(value, attribute.getLocalName(), reader.getLocation());
-                                }
-                                binding.get(MULTICAST_ADDRESS).set(value);
-                            } catch (final UnknownHostException e) {
-                                    throw MESSAGES.invalidMulticastAddress(e, value, attribute.getLocalName(), reader.getLocation());
-                            }
-                        }
+                        AbstractSocketBindingResourceDefinition.MULTICAST_ADDRESS.parseAndSetParameter(value, binding, reader);
                         break;
                     }
                     case MULTICAST_PORT: {
-                        binding.get(MULTICAST_PORT).set(parseBoundedIntegerAttribute(reader, i, 1, 65535, true));
+                        AbstractSocketBindingResourceDefinition.MULTICAST_PORT.parseAndSetParameter(value, binding, reader);
                         break;
                     }
                     default:
@@ -795,8 +762,8 @@ public abstract class CommonXml implements XMLElementReader<List<ModelNode>>, XM
         if (!required.isEmpty()) {
             throw missingRequired(reader, required);
         }
+
         // Handle elements
-            // Handle elements
         while (reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
             switch (element) {

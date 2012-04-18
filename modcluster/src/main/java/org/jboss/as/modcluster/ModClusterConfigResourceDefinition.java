@@ -57,6 +57,11 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .build();
 
+    static final SimpleAttributeDefinition CONNECTOR = SimpleAttributeDefinitionBuilder.create(CommonAttributes.CONNECTOR, ModelType.STRING, false)
+            .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
+            .build();
+
+    // TODO: Convert into xs:list of outbound socket binding names
     static final SimpleAttributeDefinition PROXY_LIST = SimpleAttributeDefinitionBuilder.create(CommonAttributes.PROXY_LIST, ModelType.STRING, true)
             .setAllowExpression(true)
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
@@ -78,6 +83,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
             .build();
 
+    // TODO: Convert into an xs:list of host:context
     static final SimpleAttributeDefinition EXCLUDED_CONTEXTS = SimpleAttributeDefinitionBuilder.create(CommonAttributes.EXCLUDED_CONTEXTS, ModelType.STRING, true)
             .setAllowExpression(true)
             .setDefaultValue(new ModelNode("ROOT,invoker,jbossws,juddi,console"))
@@ -90,6 +96,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition STOP_CONTEXT_TIMEOUT = SimpleAttributeDefinitionBuilder.create(CommonAttributes.STOP_CONTEXT_TIMEOUT, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(10))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(1, true, true))
@@ -97,6 +104,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition SOCKET_TIMEOUT = SimpleAttributeDefinitionBuilder.create(CommonAttributes.SOCKET_TIMEOUT, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(20))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(1, true, true))
@@ -119,6 +127,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition WORKER_TIMEOUT = SimpleAttributeDefinitionBuilder.create(CommonAttributes.WORKER_TIMEOUT, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(-1))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(-1, true, true))
@@ -127,6 +136,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition MAX_ATTEMPTS = SimpleAttributeDefinitionBuilder.create(CommonAttributes.MAX_ATTEMPTS, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(1))
             .setValidator(new IntRangeValidator(-1, true, true))
             .setFlags(AttributeAccess.Flag.RESTART_ALL_SERVICES)
@@ -138,6 +148,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition FLUSH_WAIT = SimpleAttributeDefinitionBuilder.create(CommonAttributes.FLUSH_WAIT, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(-1))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(-1, true, true))
@@ -152,6 +163,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition SMAX = SimpleAttributeDefinitionBuilder.create(CommonAttributes.SMAX, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(-1))
             .setValidator(new IntRangeValidator(-1, true, true))
             .setCorrector(ZeroToNegativeOneParameterCorrector.INSTANCE)
@@ -159,6 +171,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition TTL = SimpleAttributeDefinitionBuilder.create(CommonAttributes.TTL, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(-1))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(-1, true, true))
@@ -167,6 +180,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .build();
 
     static final SimpleAttributeDefinition NODE_TIMEOUT = SimpleAttributeDefinitionBuilder.create(CommonAttributes.NODE_TIMEOUT, ModelType.INT, true)
+            .setAllowExpression(true)
             .setDefaultValue(new ModelNode(-1))
             .setMeasurementUnit(MeasurementUnit.SECONDS)
             .setValidator(new IntRangeValidator(-1, true, true))
@@ -192,6 +206,7 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             .setAllowExpression(true)
             .setValidator(new IntRangeValidator(1, true, true))
             .build();
+
     // order here controls the order of writing into xml, should follow xsd schema
     static final SimpleAttributeDefinition[] ATTRIBUTES = {
             ADVERTISE_SOCKET,
@@ -215,7 +230,8 @@ class ModClusterConfigResourceDefinition extends SimpleResourceDefinition {
             SMAX,
             TTL,
             NODE_TIMEOUT,
-            LOAD_BALANCING_GROUP // not in the 1.0 xsd
+            LOAD_BALANCING_GROUP, // was called "domain" in the 1.0 xsd
+            CONNECTOR, // not in the 1.0 xsd
     };
 
 

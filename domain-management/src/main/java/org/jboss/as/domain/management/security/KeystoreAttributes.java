@@ -40,7 +40,7 @@ public class KeystoreAttributes {
 
     public static final SimpleAttributeDefinition ALIAS = new SimpleAttributeDefinitionBuilder(ModelDescriptionConstants.ALIAS,
             ModelType.STRING, true).setXmlName(ModelDescriptionConstants.ALIAS)
-            .setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, true, true))
+            .setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, true, false))
             .setFlags(AttributeAccess.Flag.RESTART_RESOURCE_SERVICES).build();
 
     public static final SimpleAttributeDefinition KEY_PASSWORD = new SimpleAttributeDefinitionBuilder(
@@ -49,7 +49,7 @@ public class KeystoreAttributes {
             .setFlags(AttributeAccess.Flag.RESTART_RESOURCE_SERVICES).build();
 
     public static final SimpleAttributeDefinition KEYSTORE_PASSWORD = new SimpleAttributeDefinitionBuilder(ModelDescriptionConstants.KEYSTORE_PASSWORD, ModelType.STRING, false)
-            .setXmlName(ModelDescriptionConstants.KEYSTORE_PASSWORD).setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, false, false))
+            .setXmlName(ModelDescriptionConstants.KEYSTORE_PASSWORD).setValidator(new StringLengthValidator(1, Integer.MAX_VALUE, false, true)).setAllowExpression(true)
             .setFlags(AttributeAccess.Flag.RESTART_RESOURCE_SERVICES).build();
 
     public static final SimpleAttributeDefinition KEYSTORE_PATH = new SimpleAttributeDefinitionBuilder(ModelDescriptionConstants.KEYSTORE_PATH, ModelType.STRING, false)
