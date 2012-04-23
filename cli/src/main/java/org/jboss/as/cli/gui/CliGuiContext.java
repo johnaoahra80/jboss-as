@@ -20,7 +20,9 @@ package org.jboss.as.cli.gui;
 
 import java.awt.Window;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import org.jboss.as.cli.gui.charts.ChartManager;
 import org.jboss.dmr.ModelNode;
 
 /**
@@ -29,12 +31,17 @@ import org.jboss.dmr.ModelNode;
  */
 public class CliGuiContext {
 
+    private boolean isEmbedded = false;
+
     private CommandExecutor executor;
     private JPanel mainPanel;
+    private JTabbedPane tabs;
     private CommandLine cmdLine;
     private boolean isStandalone;
+    private ChartManager chartManager = new ChartManager(this);
 
-    CliGuiContext() {
+    CliGuiContext(boolean isEmbedded) {
+        this.isEmbedded = isEmbedded;
     }
 
     void setExecutor(CommandExecutor executor) {
@@ -51,10 +58,22 @@ public class CliGuiContext {
         this.mainPanel = mainPanel;
     }
 
+    void setTabs(JTabbedPane tabs) {
+        this.tabs = tabs;
+    }
+
     void setCommandLine(CommandLine cmdLine) {
         this.cmdLine = cmdLine;
     }
 
+    /**
+     * Find if CLI GUI is running in its own JFrame (kicked off by jboss-cli) or
+     * embedded in another JFrame (kicked off by jconsole).
+     * @return true if embedded, false otherwise.
+     */
+    public boolean isEmbedded() {
+        return this.isEmbedded;
+    }
     /**
      * Find if we are connected to a standalone AS instances
      * or a domain controller.
@@ -70,6 +89,14 @@ public class CliGuiContext {
      */
     public JPanel getMainPanel() {
         return mainPanel;
+    }
+
+    /**
+     * Get the tabs for CLI GUI.
+     * @return The tabs.
+     */
+    public JTabbedPane getTabs() {
+        return this.tabs;
     }
 
     /**
@@ -94,5 +121,9 @@ public class CliGuiContext {
      */
     public CommandExecutor getExecutor() {
         return executor;
+    }
+
+    public ChartManager getChartManager() {
+        return this.chartManager;
     }
 }

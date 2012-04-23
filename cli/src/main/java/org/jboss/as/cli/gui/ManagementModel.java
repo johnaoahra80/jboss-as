@@ -18,6 +18,7 @@
  */
 package org.jboss.as.cli.gui;
 
+import org.jboss.as.cli.gui.charts.ChartMenu;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -31,6 +32,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import org.jboss.as.cli.gui.ManagementModelNode.AttributeProps;
+import org.jboss.as.cli.gui.ManagementModelNode.UserObject;
 
 /**
  * This class contains a JTree view of the management model that allows you to build commands by
@@ -39,13 +42,15 @@ import javax.swing.tree.TreeSelectionModel;
  * @author Stan Silvert ssilvert@redhat.com (C) 2012 Red Hat Inc.
  */
 public class ManagementModel extends JPanel {
+    private static final String SIMPLE_HELP ="<html><font size='4'>Right-click a node to choose an operation.  Close/Open a folder to refresh.  Hover for help.<br>" +
+                                             "A real-time graphable attribute is deonted with the \u2245 symbol. Right-click to monitor.</font></html>";
 
     private CliGuiContext cliGuiCtx;
 
     public ManagementModel(CliGuiContext cliGuiCtx) {
         this.cliGuiCtx = cliGuiCtx;
         setLayout(new BorderLayout(10,10));
-        add(new JLabel("Right-click a node to choose an operation.  Close/Open a folder to refresh.  Hover for help."), BorderLayout.NORTH);
+        add(new JLabel(SIMPLE_HELP), BorderLayout.NORTH);
         add(makeTree(), BorderLayout.CENTER);
     }
 
@@ -93,16 +98,18 @@ public class ManagementModel extends JPanel {
     }
 
     /**
-     * Listener that triggers the popup menu containing operations.
+     * Listener that triggers the operationMenu menu containing operations.
      */
     private class ManagementTreeMouseListener extends MouseAdapter {
 
         private JTree tree;
-        private OperationMenu popup;
+        private OperationMenu operationMenu;
+        private ChartMenu graphingMenu;
 
         public ManagementTreeMouseListener(JTree tree) {
             this.tree = tree;
-            this.popup = new OperationMenu(cliGuiCtx, tree);
+            this.operationMenu = new OperationMenu(cliGuiCtx, tree);
+            this.graphingMenu = new ChartMenu(cliGuiCtx, tree);
         }
 
         @Override
@@ -126,7 +133,13 @@ public class ManagementModel extends JPanel {
 
             ManagementModelNode node = (ManagementModelNode)selPath.getLastPathComponent();
 
-            popup.show(node, e.getX(), e.getY());
+            UserObject usrObj = (UserObject)node.getUserObject();
+            AttributeProps attrDesc = usrObj.getAttributeProps();
+            if ((attrDesc != null) && attrDesc.isGraphable()) {
+                graphingMenu.show(node, e.getX(), e.getY());
+            } else {
+                operationMenu.show(node, e.getX(), e.getY());
+            }
         }
     }
 }

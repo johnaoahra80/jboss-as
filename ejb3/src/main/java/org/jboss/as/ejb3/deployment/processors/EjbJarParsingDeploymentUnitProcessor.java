@@ -26,6 +26,7 @@ package org.jboss.as.ejb3.deployment.processors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
@@ -36,6 +37,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.jboss.as.ee.component.EEApplicationClasses;
 import org.jboss.as.ee.component.EEModuleDescription;
 import org.jboss.as.ee.metadata.MetadataCompleteMarker;
+import org.jboss.as.ee.structure.SpecDescriptorPropertyReplacement;
 import org.jboss.as.ejb3.cache.EJBBoundCacheParser;
 import org.jboss.as.ejb3.clustering.EJBBoundClusteringMetaDataParser;
 import org.jboss.as.ejb3.deployment.EjbDeploymentAttachmentKeys;
@@ -173,7 +175,7 @@ public class EjbJarParsingDeploymentUnitProcessor implements DeploymentUnitProce
         if (isWar(deploymentRoot)) {
             // it's a .war file, so look for the ejb-jar.xml in WEB-INF
             descriptor = deploymentRoot.getChild(WEB_INF + "/" + descriptorName);
-        } else if (deploymentRoot.getName().toLowerCase().endsWith(JAR_FILE_EXTENSION)) {
+        } else if (deploymentRoot.getName().toLowerCase(Locale.ENGLISH).endsWith(JAR_FILE_EXTENSION)) {
             descriptor = deploymentRoot.getChild(META_INF + "/" + descriptorName);
         } else {
             // neither a .jar nor a .war. Return
@@ -209,7 +211,7 @@ public class EjbJarParsingDeploymentUnitProcessor implements DeploymentUnitProce
 
     private static boolean isWar(final VirtualFile deploymentRoot) {
         // TODO: Is there a better way to do this?
-        return deploymentRoot.getName().toLowerCase().endsWith(WAR_FILE_EXTENSION);
+        return deploymentRoot.getName().toLowerCase(Locale.ENGLISH).endsWith(WAR_FILE_EXTENSION);
     }
 
     private static InputStream open(final VirtualFile file) throws DeploymentUnitProcessingException {
@@ -244,9 +246,7 @@ public class EjbJarParsingDeploymentUnitProcessor implements DeploymentUnitProce
         InputStream stream = open(descriptor);
         try {
             XMLStreamReader reader = getXMLStreamReader(stream, descriptor, dtdInfo);
-            final PropertyResolver propertyResolver = deploymentUnit.getAttachment(org.jboss.as.ee.metadata.property.Attachments.FINAL_PROPERTY_RESOLVER);
-            final PropertyReplacer propertyReplacer = PropertyReplacers.resolvingReplacer(propertyResolver);
-            EjbJarMetaData ejbJarMetaData = EjbJarMetaDataParser.parse(reader, dtdInfo, propertyReplacer);
+            EjbJarMetaData ejbJarMetaData = EjbJarMetaDataParser.parse(reader, dtdInfo, SpecDescriptorPropertyReplacement.propertyReplacer(deploymentUnit));
             return ejbJarMetaData;
         } catch (XMLStreamException xmlse) {
             throw new DeploymentUnitProcessingException("Exception while parsing ejb-jar.xml: " + descriptor.getPathName(), xmlse);

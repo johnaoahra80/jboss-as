@@ -68,21 +68,22 @@ public class GuiMain {
     private GuiMain() {} // don't allow an instance
 
     public static void start(CommandContext cmdCtx) {
-        initJFrame(makeGuiContext(cmdCtx));
+        initJFrame(makeGuiContext(cmdCtx, false));
     }
 
     public static CliGuiContext startEmbedded(CommandContext cmdCtx) {
-        return makeGuiContext(cmdCtx);
+        return makeGuiContext(cmdCtx, true);
     }
 
-    private static CliGuiContext makeGuiContext(CommandContext cmdCtx) {
-        CliGuiContext cliGuiCtx = new CliGuiContext();
+    private static CliGuiContext makeGuiContext(CommandContext cmdCtx, boolean isEmbedded) {
+        CliGuiContext cliGuiCtx = new CliGuiContext(isEmbedded);
         CommandExecutor executor = new CommandExecutor(cliGuiCtx, cmdCtx);
         cliGuiCtx.setExecutor(executor);
 
         JTextPane output = new JTextPane();
         JPanel outputDisplay = makeOutputDisplay(output);
         JTabbedPane tabs = makeTabbedPane(cliGuiCtx, outputDisplay);
+        cliGuiCtx.setTabs(tabs);
 
         DoOperationActionListener opListener = new DoOperationActionListener(cliGuiCtx, output, tabs);
         CommandLine cmdLine = new CommandLine(opListener);
