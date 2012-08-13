@@ -102,6 +102,7 @@ public enum Element {
     NIC("nic"),
     NIC_MATCH("nic-match"),
     NOT("not"),
+    NUMA("numa"),
 
     OPTION("option"),
     OUTBOUND_CONNECTIONS("outbound-connections"),
@@ -155,6 +156,7 @@ public enum Element {
     VIRTUAL("virtual"),
     VAULT("vault"),
     VAULT_OPTION("vault-option")
+
     ;
 
     private final String name;

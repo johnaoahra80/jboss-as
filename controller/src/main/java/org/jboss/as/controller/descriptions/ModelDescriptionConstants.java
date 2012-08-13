@@ -69,6 +69,10 @@ public class ModelDescriptionConstants {
     public static final String CONTENT = "content";
     public static final String CORE_SERVICE = "core-service";
     public static final String CPU_AFFINITY = "cpu-affinity";
+
+    //JOH
+    public static final String CPUNODEBIND = "cpunodebind";
+
     public static final String CRITERIA = "criteria";
     public static final String DEFAULT = "default";
     public static final String DEFAULT_INTERFACE = "default-interface";
@@ -123,6 +127,10 @@ public class ModelDescriptionConstants {
     public static final String INITIAL_CONTEXT_FACTORY = "initial-context-factory";
     public static final String INPUT_STREAM_INDEX = "input-stream-index";
     public static final String INTERFACE = "interface";
+
+    //JOH
+    public static final String INTERLEAVE = "interleave";
+
     public static final String JAAS = "jaas";
     public static final String JVM = "jvm";
     public static final String LDAP = "ldap";
@@ -130,6 +138,10 @@ public class ModelDescriptionConstants {
     public static final String LOCAL = "local";
     public static final String LOCAL_DESTINATION_OUTBOUND_SOCKET_BINDING = "local-destination-outbound-socket-binding";
     public static final String LOCAL_HOST_NAME = "local-host-name";
+
+    //JOH
+    public static final String LOCALALLOC = "localalloc";
+
     public static final String LOCALE = "locale";
     public static final String MANAGEMENT_SUBSYSTEM_ENDPOINT = "management-subsystem-endpoint";
     public static final String MANAGEMENT = "management";
@@ -146,6 +158,10 @@ public class ModelDescriptionConstants {
     public static final String MAX_LENGTH = "max-length";
     public static final String MAX_OCCURS = "max-occurs";
     public static final String MAX_THREADS = "max-threads";
+
+    //JOH
+    public static final String MEMBIND = "membind";
+
     public static final String MIN = "min";
     public static final String MIN_LENGTH = "min-length";
     public static final String MIN_OCCURS = "min-occurs";
@@ -163,6 +179,7 @@ public class ModelDescriptionConstants {
     public static final String NETWORK = "network";
     public static final String NILLABLE = "nillable";
     public static final String NOT = "not";
+    public static final String NUMA = "numa";
     /** Use this as the standard operation name field in the operation *request* ModelNode */
     public static final String OP = "operation";
     /** Use this standard operation address field in the operation *request* ModelNode */
@@ -176,11 +193,19 @@ public class ModelDescriptionConstants {
     public static final String PASSWORD = "password";
     public static final String PATH = "path";
     public static final String PERSISTENT = "persistent";
+
+    //JOH
+    public static final String PHYSCPUBIND = "physcpubind";
+
     public static final String PLAIN_TEXT = "plain-text";
     public static final String PLATFORM_MBEAN = "platform-mbean";
     public static final String PORT = "port";
     public static final String PORT_OFFSET = "port-offset";
     public static final String PRIORITY = "priority";
+
+    //JOH
+    public static final String PREFERRED = "preferred";
+
     public static final String PROBLEM = "problem";
     public static final String PROCESS_TYPE = "process-type";
     public static final String PROCESS_STATE = "process-state";

@@ -56,25 +56,33 @@ import static org.jboss.as.controller.ControllerMessages.MESSAGES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.AUTO_START;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CORE_SERVICE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.CPUNODEBIND;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DIRECTORY_GROUPING;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DOMAIN_CONTROLLER;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ENABLED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.GROUP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HOST;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HTTP_INTERFACE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGNORED_RESOURCES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGNORED_RESOURCE_TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERFACE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERLEAVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.JVM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LOCAL;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LOCALALLOC;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT_INTERFACE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MEMBIND;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAMES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NATIVE_INTERFACE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NUMA;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PHYSCPUBIND;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PORT;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PREFERRED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOTE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SECURITY_REALM;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVER_CONFIG;
@@ -1152,10 +1160,12 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
         boolean sawJvm = false;
         boolean sawSystemProperties = false;
         boolean sawSocketBinding = false;
+        boolean sawNuma = false;
         final Set<String> interfaceNames = new HashSet<String>();
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             requireNamespace(reader, expectedNs);
             final Element element = Element.forName(reader.getLocalName());
+//JOH : REMOVE            System.out.println("Parsing Element: " + element.toString());
             switch (element) {
                 case INTERFACES: { // THIS IS DIFFERENT FROM 1.0
                     parseInterfaces(reader, interfaceNames, serverAddress, expectedNs, list, true);
@@ -1190,11 +1200,130 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
                     sawSystemProperties = true;
                     break;
                 }
+                case NUMA: {
+                    if (sawNuma) {
+                        throw MESSAGES.alreadyDefined(element.getLocalName(), reader.getLocation());
+                    }
+                    parseNuma(reader, serverAddress, list);
+                    sawNuma = true;
+                    break;
+                }
                 default:
                     throw unexpectedElement(reader);
             }
         }
 
+    }
+
+    private void parseNuma(final XMLExtendedStreamReader reader, final ModelNode address,
+            final List<ModelNode> updates) throws XMLStreamException {
+
+        String interleave = null;
+        String preferred = null;
+        String membind = null;
+        String cpunodebind = null;
+        String physcpubind = null;
+        Boolean localalloc = null;
+        Boolean enabled = null;
+
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String value = reader.getAttributeValue(i);
+            if (!isNoNamespaceAttribute(reader, i)) {
+                throw ParseUtils.unexpectedAttribute(reader, i);
+            } else {
+                final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+                System.out.println("Numa Attribute: " + attribute.toString());
+                switch (attribute) {
+                    case INTERLEAVE: {
+                        if (interleave != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        interleave = value;
+                        break;
+                    }
+                    case PREFERRED: {
+                        if (preferred != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        preferred = value;
+                        break;
+                    }
+                    case MEMBIND: {
+                        if (membind != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        membind = value;
+                        break;
+                    }
+                    case CPUNODEBIND: {
+                        if (cpunodebind != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        cpunodebind = value;
+                        break;
+                    }
+                    case PHYSCPUBIND: {
+                        if (physcpubind != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        physcpubind = value;
+                        break;
+                    }
+                    case LOCALALLOC: {
+                        if (localalloc != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        localalloc = Boolean.valueOf(value);
+                        break;
+                    }
+                    case ENABLED: {
+                        if (enabled != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        enabled = Boolean.valueOf(value);
+                        break;
+                    }
+                    default:
+                        throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+        if (enabled == null) {
+            enabled = false;
+        }
+
+        // Handle elements
+        requireNoContent(reader);
+
+
+        if (interleave != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, INTERLEAVE, interleave);
+            updates.add(update);
+        }
+
+        if (preferred != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, PREFERRED, preferred);
+            updates.add(update);
+        }
+
+        if (membind != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, MEMBIND, membind);
+            updates.add(update);
+        }
+
+        if (cpunodebind != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, CPUNODEBIND, cpunodebind);
+            updates.add(update);
+        }
+
+        if (physcpubind != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, PHYSCPUBIND, physcpubind);
+            updates.add(update);
+        }
+
+        if (localalloc != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, LOCALALLOC, localalloc.booleanValue());
+            updates.add(update);
+        }
+
+        if (enabled != null) {
+            ModelNode update = Util.getWriteAttributeOperation(address, ENABLED, enabled.booleanValue());
+            updates.add(update);
+        }
     }
 
     private ModelNode parseServerAttributes(final XMLExtendedStreamReader reader, final ModelNode parentAddress,

@@ -999,10 +999,82 @@
             <!--<xs:element name="loggers" type="loggersType" minOccurs="0"/>-->
             <xs:element name="system-properties" type="properties-with-boottime" minOccurs="0"/>
             <xs:element name="jvm" minOccurs="0" type="serverJvmType"/>
+			<xs:element name="numa" type="serverNumaType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="group" type="xs:string" use="required"/>
         <xs:attribute name="auto-start" type="xs:boolean" default="true"/>
+    </xs:complexType>
+
+    <xs:complaxType name="serverNumaType">
+	
+	    <xs:attribute name="interleave" type="xs:string" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Set a memory interleave policy. Memory will be allocated using round robin on nodes.  When memory cannot be allocated on the current interleave target fall back  to  other  nodes.   Multiple
+					nodes may be specified on --interleave, --membind and --cpunodebind.  You may specify "all", which means all nodes in the current cpuset.  nodes may be specified as N,N,N or  N-N or N,N-N or
+					N-N,N-N and so forth.  Relative nodes may be specifed as +N,N,N or  +N-N or +N,N-N and so forth. The + indicates that the node numbers are relative to the process' set of  allowed  nodes  in
+					its current cpuset.  A !N-N notation indicates the inverse of N-N, in other words all nodes except N-N.  If used with + notation, specify !+N-N.
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+	    <xs:attribute name="preferred" type="xs:string" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Preferably allocate memory on node, but if memory cannot be allocated there fall back to other nodes.  This option takes only a single node number.  Relative notation may be used.
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+	    <xs:attribute name="membind" type="xs:string" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Only allocate memory from nodes.  Allocation will fail when there is not enough memory available on these nodes.  nodes may be specified as noted above.
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+	    <xs:attribute name="cpunodebind" type="xs:string" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Only execute command on the CPUs of nodes.  Note that nodes may consist of multiple CPUs.  nodes may be specified as noted above.
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+	    <xs:attribute name="physcpubind" type="xs:string" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Only  execute  process  on  cpus.   This accepts cpu numbers as shown in the processor fields of /proc/cpuinfo, or relative cpus as in relative to the current cpuset.  You may specify "all", which means all cpus in the current cpuset.  Physical cpus may be specified as N,N,N or  N-N or N,N-N or  N-N,N-N and so forth.  Relative cpus may be specifed as +N,N,N or   +N-N  or  +N,N-N and  so  forth. The + indicates that the cpu numbers are relative to the process' set of allowed cpus in its current cpuset.  A !N-N notation indicates the inverse of N-N, in other words all cpus except N-N.  If used with + notation, specify !+N-N.
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+	    <xs:attribute name="localalloc" type="xs:boolean" minOccurs="0" maxOccurs="1" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    localalloc
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+		<xs:attribute name="enabled" type="xs:boolean" default="true" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Enable numa bindings
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+		</xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="server-socket-bindingsType">

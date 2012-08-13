@@ -76,6 +76,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LOC
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT_SUBSYSTEM_ENDPOINT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAMESPACES;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NUMA;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
@@ -243,6 +244,10 @@ class ModelCombiner implements ManagedServerBootConfiguration {
     public List<String> getServerLaunchCommand() {
         final List<String> command = new ArrayList<String>();
 
+        if(canEnableNumaControl()){
+            command.addAll(getNumaCommand());
+        }
+
         command.add(getJavaCommand());
 
         command.add("-D[" + ManagedServer.getServerProcessName(serverName) + "]");
@@ -302,6 +307,40 @@ class ModelCombiner implements ManagedServerBootConfiguration {
     @Override
     public boolean isManagementSubsystemEndpoint() {
         return managementSubsystemEndpoint;
+    }
+
+    private boolean canEnableNumaControl(){
+        //TODO: JOH - Add logic to determine if numa binding is possible for platform
+        //      Need to check that the platform AS is being run on supports numa binding
+        if (serverModel.hasDefined(NUMA)) {
+            System.out.println("***** Enabling numa binding for: " + serverName);
+            return true;
+        }
+        else{
+            System.out.println("***** Disabling numa binding for: " + serverName);
+            return false;
+        }
+    }
+
+    private List<String> getNumaCommand() {
+/*
+        if (serverModel.hasDefined(NUMA)) {
+            for (final String numa : serverModel.get(NUMA).keys()) {
+                serverVMName = jvm;
+                serverVM = serverModel.get(JVM, jvm);
+                break;
+            }
+        }
+*/
+        List<String> numaCommand = new ArrayList<String>();
+
+        numaCommand.add("/usr/bin/numactl");
+        numaCommand.add("--membind");
+        numaCommand.add("0");
+        numaCommand.add("--cpunodebind");
+        numaCommand.add("0");
+
+        return numaCommand;
     }
 
     private String getJavaCommand() {
