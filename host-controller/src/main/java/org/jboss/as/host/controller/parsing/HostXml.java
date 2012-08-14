@@ -1225,7 +1225,10 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
         String physcpubind = null;
         Boolean localalloc = null;
         Boolean enabled = null;
-
+//JOH : remove
+for (ModelNode element : address.asList()) {
+System.out.println(element.getType());
+}
         final int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
             final String value = reader.getAttributeValue(i);
@@ -1290,6 +1293,14 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
         requireNoContent(reader);
 
 
+        if (interleave != null) {System.out.println("interleave: " + interleave);}
+        if (preferred != null) {System.out.println("preferred: " + preferred);}
+        if (membind != null) {System.out.println("membind: " + membind);}
+        if (cpunodebind != null) {System.out.println("cpunodebind: " + cpunodebind);}
+        if (physcpubind != null) {System.out.println("physcpubind: " + physcpubind);}
+        if (localalloc != null) {System.out.println("localalloc: " + localalloc);}
+        if (enabled != null) {System.out.println("enabled: " + enabled);}
+
         if (interleave != null) {
             ModelNode update = Util.getWriteAttributeOperation(address, INTERLEAVE, interleave);
             updates.add(update);
@@ -1324,6 +1335,7 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
             ModelNode update = Util.getWriteAttributeOperation(address, ENABLED, enabled.booleanValue());
             updates.add(update);
         }
+
     }
 
     private ModelNode parseServerAttributes(final XMLExtendedStreamReader reader, final ModelNode parentAddress,

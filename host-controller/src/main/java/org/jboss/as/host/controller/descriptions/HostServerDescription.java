@@ -33,11 +33,14 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.JVM
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_LENGTH;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MEMBIND;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MODEL_DESCRIPTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NUMA;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATIONS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATION_NAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PATH;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.PREFERRED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REPLY_PROPERTIES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REQUEST_PROPERTIES;
@@ -104,6 +107,12 @@ public class HostServerDescription {
         root.get(ATTRIBUTES, SOCKET_BINDING_PORT_OFFSET, TYPE).set(ModelType.INT);
         root.get(ATTRIBUTES, SOCKET_BINDING_PORT_OFFSET, REQUIRED).set(false);
 
+        root.get(ATTRIBUTES, MEMBIND, DESCRIPTION).set(bundle.getString("server.numa-membind"));
+        root.get(ATTRIBUTES, MEMBIND, MIN_OCCURS).set(0);
+        root.get(ATTRIBUTES, MEMBIND, MAX_OCCURS).set(1);
+        root.get(ATTRIBUTES, MEMBIND, MODEL_DESCRIPTION).setEmptyObject();
+
+
         root.get(OPERATIONS).setEmptyObject();
 
         root.get(CHILDREN, PATH, DESCRIPTION).set(bundle.getString("server.path"));
@@ -125,6 +134,7 @@ public class HostServerDescription {
         root.get(CHILDREN, JVM, MIN_OCCURS).set(0);
         root.get(CHILDREN, JVM, MAX_OCCURS).set(Integer.MAX_VALUE);
         root.get(CHILDREN, JVM, MODEL_DESCRIPTION).setEmptyObject();
+
 
         return root;
     }
@@ -154,6 +164,10 @@ public class HostServerDescription {
         root.get(REQUEST_PROPERTIES, SOCKET_BINDING_PORT_OFFSET, DESCRIPTION).set(bundle.getString("server.socket-binding-port-offset"));
         root.get(REQUEST_PROPERTIES, SOCKET_BINDING_PORT_OFFSET, TYPE).set(ModelType.INT);
         root.get(REQUEST_PROPERTIES, SOCKET_BINDING_PORT_OFFSET, REQUIRED).set(false);
+
+        root.get(REQUEST_PROPERTIES, MEMBIND, DESCRIPTION).set(bundle.getString("server.numa-membind"));
+        root.get(REQUEST_PROPERTIES, MEMBIND, TYPE).set(ModelType.STRING);
+        root.get(REQUEST_PROPERTIES, MEMBIND, REQUIRED).set(false);
 
         root.get(REQUEST_PROPERTIES, AUTO_START, DESCRIPTION).set(bundle.getString("server.auto-start"));
         root.get(REQUEST_PROPERTIES, AUTO_START, TYPE).set(ModelType.BOOLEAN);

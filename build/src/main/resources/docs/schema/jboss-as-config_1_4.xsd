@@ -1060,7 +1060,7 @@
             <xs:annotation>
                 <xs:documentation>
                 <![CDATA[
-                    localalloc
+                    Always allocate on the current node.
                 ]]>
                 </xs:documentation>
             </xs:annotation>
