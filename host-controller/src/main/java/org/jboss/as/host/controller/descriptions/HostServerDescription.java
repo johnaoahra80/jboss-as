@@ -30,6 +30,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.GRO
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HEAD_COMMENT_ALLOWED;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERFACE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.JVM;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND_PREFIX;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAX_OCCURS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_LENGTH;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MIN_OCCURS;
@@ -96,6 +98,11 @@ public class HostServerDescription {
 //        root.get(ATTRIBUTES, CPU_AFFINITY, REQUIRED).set(false);
 //        root.get(ATTRIBUTES, CPU_AFFINITY, MIN_LENGTH).set(1);
 
+        root.get(ATTRIBUTES, LAUNCH_COMMAND_PREFIX, DESCRIPTION).set(bundle.getString("server.launch-command-prefix"));
+        root.get(ATTRIBUTES, LAUNCH_COMMAND_PREFIX, TYPE).set(ModelType.STRING);
+        root.get(ATTRIBUTES, LAUNCH_COMMAND_PREFIX, REQUIRED).set(false);
+        root.get(ATTRIBUTES, LAUNCH_COMMAND_PREFIX, MIN_LENGTH).set(1);
+
         root.get(ATTRIBUTES, SOCKET_BINDING_GROUP, DESCRIPTION).set(bundle.getString("server.socket-binding-group"));
         root.get(ATTRIBUTES, SOCKET_BINDING_GROUP, TYPE).set(ModelType.STRING);
         root.get(ATTRIBUTES, SOCKET_BINDING_GROUP, REQUIRED).set(true);
@@ -125,6 +132,11 @@ public class HostServerDescription {
         root.get(CHILDREN, JVM, MIN_OCCURS).set(0);
         root.get(CHILDREN, JVM, MAX_OCCURS).set(Integer.MAX_VALUE);
         root.get(CHILDREN, JVM, MODEL_DESCRIPTION).setEmptyObject();
+
+        root.get(CHILDREN, LAUNCH_COMMAND_PREFIX, DESCRIPTION).set(bundle.getString("server.launch-command-prefix"));
+        root.get(CHILDREN, LAUNCH_COMMAND_PREFIX, MIN_OCCURS).set(0);
+        root.get(CHILDREN, LAUNCH_COMMAND_PREFIX, MAX_OCCURS).set(Integer.MAX_VALUE);
+        root.get(CHILDREN, LAUNCH_COMMAND_PREFIX, MODEL_DESCRIPTION).setEmptyObject();
 
         return root;
     }

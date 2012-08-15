@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Arrays;
 
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
@@ -71,6 +72,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HAS
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INCLUDES;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERFACE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.JVM;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND_PREFIX;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LDAP_CONNECTION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LOCAL_DESTINATION_OUTBOUND_SOCKET_BINDING;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT;
@@ -100,6 +103,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VAU
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VAULT_OPTIONS;
 import static org.jboss.as.host.controller.HostControllerMessages.MESSAGES;
 
+import static org.jboss.as.host.controller.HostControllerLogger.ROOT_LOGGER;
 /**
  * Combines the relevant parts of the domain-level and host-level models to
  * determine the jvm launch command and boot-time updates needed to start
@@ -243,6 +247,12 @@ class ModelCombiner implements ManagedServerBootConfiguration {
     public List<String> getServerLaunchCommand() {
         final List<String> command = new ArrayList<String>();
 
+        if (serverModel.hasDefined(LAUNCH_COMMAND)) {
+            List<String> commandPrefix = getLaunchPrefixCommands();
+                if(commandPrefix != null)
+                command.addAll(commandPrefix);
+        }
+
         command.add(getJavaCommand());
 
         command.add("-D[" + ManagedServer.getServerProcessName(serverName) + "]");
@@ -317,6 +327,18 @@ class ModelCombiner implements ManagedServerBootConfiguration {
         }
 
         return DefaultJvmUtils.findJavaExecutable(javaHome);
+    }
+
+    private ArrayList<String> getLaunchPrefixCommands(){
+        final ModelNode prefixCommandNode = serverModel.require(LAUNCH_COMMAND);
+        final String prefixCommand = prefixCommandNode.get(LAUNCH_COMMAND_PREFIX).get(VALUE).asString();
+        ArrayList<String> commands = null;
+
+        if(prefixCommand.length()>0){
+            commands = new ArrayList<String>(Arrays.asList(prefixCommand.split("\\s* \\s*")));
+        }
+        ROOT_LOGGER.serverLaunchCommandPrefix(this.serverName, prefixCommand);
+        return commands;
     }
 
     /**

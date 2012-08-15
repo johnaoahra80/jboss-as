@@ -396,4 +396,15 @@ public interface HostControllerLogger extends BasicLogger {
     @LogMessage(level = Level.WARN)
     @Message(id=10939, value="The slave host controller \"%s\"  could not be reached in the last [%d] milliseconds. Unregistering.")
     void slaveHostControllerUnreachable(String hostName, long timeout);
+
+    /**
+     * Logs an informational stating the server launch command prefix.
+     *
+     * @param serverName the name of the server that will be started with launch command prefix.
+     * @param launchCommandPrefix the prefixed launch command.
+     */
+    @LogMessage(level = Level.INFO)
+    @Message(id = 11990, value = "Sever %s will be started with launch command prefix '%s'")
+    void serverLaunchCommandPrefix(String serverName, String launchCommandPrefix);
+
 }

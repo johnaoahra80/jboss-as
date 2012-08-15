@@ -999,6 +999,7 @@
             <!--<xs:element name="loggers" type="loggersType" minOccurs="0"/>-->
             <xs:element name="system-properties" type="properties-with-boottime" minOccurs="0"/>
             <xs:element name="jvm" minOccurs="0" type="serverJvmType"/>
+            <xs:element name="launch-command" minOccurs="0" maxOccurs="1" type="server-launch-commandType"/>
         </xs:all>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="group" type="xs:string" use="required"/>
@@ -1035,6 +1036,25 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:element name="server-launch-commandType" type="xs:string">
+        <xs:annotation>
+            <xs:documentation>
+				<![CDATA[
+					Append comands to server lanch process for domain mode servers
+                ]]>
+			</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="prefix" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    Server instance launch command prefix
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:element>
 
     <xs:complexType name="extensionsType">
         <xs:annotation>

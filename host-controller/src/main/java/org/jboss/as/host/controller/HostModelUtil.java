@@ -26,6 +26,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.GRO
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HOST;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.HOST_STATE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERFACE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND_PREFIX;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MASTER;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.NAME;
@@ -95,6 +97,8 @@ import org.jboss.as.host.controller.descriptions.HostDescriptionProviders;
 import org.jboss.as.host.controller.descriptions.HostRootDescription;
 import org.jboss.as.host.controller.ignored.IgnoredDomainResourceRegistry;
 import org.jboss.as.host.controller.model.jvm.JvmResourceDefinition;
+import org.jboss.as.host.controller.model.launchCommand.LaunchCommandAddHandler;
+import org.jboss.as.host.controller.model.launchCommand.LaunchCommandRemoveHandler;
 import org.jboss.as.host.controller.operations.HostModelRegistrationHandler;
 import org.jboss.as.host.controller.operations.HostShutdownHandler;
 import org.jboss.as.host.controller.operations.HostSpecifiedInterfaceAddHandler;
@@ -339,6 +343,12 @@ public class HostModelUtil {
         serverSysProps.registerOperationHandler(SystemPropertyRemoveHandler.OPERATION_NAME, SystemPropertyRemoveHandler.INSTANCE, SystemPropertyRemoveHandler.INSTANCE, false);
         serverSysProps.registerReadWriteAttribute(VALUE, null, SystemPropertyValueWriteAttributeHandler.INSTANCE, Storage.CONFIGURATION);
         serverSysProps.registerReadWriteAttribute(BOOT_TIME, null, new WriteAttributeHandlers.ModelTypeValidatingHandler(ModelType.BOOLEAN), Storage.CONFIGURATION);
+
+        // Server launch commands
+        ManagementResourceRegistration serverLaunchCommands = servers.registerSubModel(PathElement.pathElement(LAUNCH_COMMAND), CommonProviders.READ_OPERATION_PROVIDER);
+        serverLaunchCommands.registerOperationHandler(LaunchCommandAddHandler.OPERATION_NAME, LaunchCommandAddHandler.INSTANCE, LaunchCommandAddHandler.INSTANCE, false);
+        serverLaunchCommands.registerOperationHandler(LaunchCommandRemoveHandler.OPERATION_NAME, LaunchCommandRemoveHandler.INSTANCE, LaunchCommandRemoveHandler.INSTANCE, false);
+        InterfaceCriteriaWriteHandler.CONFIG_ONLY.register(serverLaunchCommands);
 
         // Server jvm
         final ManagementResourceRegistration serverVMs = servers.registerSubModel(JvmResourceDefinition.SERVER);
