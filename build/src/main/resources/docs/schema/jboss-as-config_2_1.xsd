@@ -1356,7 +1356,7 @@
                       The numerical values in the enumeration entries, is the numerical value as defined in the RFC.
                    </xs:documentation>
                 </xs:annotation>
-                <xs:simpleType>                
+                <xs:simpleType>
 	                <xs:restriction base="xs:token">
 		                <xs:enumeration value="KERNEL">
 			                <xs:annotation>
@@ -3254,6 +3254,7 @@
             <xs:element name="java-agent" type="jvm-javaagentType" minOccurs="0"/>
             <xs:element name="jvm-options" type="jvm-optionsType" minOccurs="0"/>
             <xs:element name="environment-variables" type="environmentVariablesType" minOccurs="0"/>
+            <xs:element name="launch-command" type="launch-commandType" minOccurs="0"/>
         </xs:all>
         <xs:attribute name="java-home" type="xs:string"/>
         <xs:attribute name="type" default="SUN">
@@ -3368,6 +3369,25 @@
         <xs:sequence>
             <xs:element name="variable" type="propertyType" maxOccurs="unbounded"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="launch-commandType">
+        <xs:annotation>
+            <xs:documentation>
+                <![CDATA[
+                    Prepend comands to the JVM launch process.
+                ]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="prefix" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                <![CDATA[
+                    JVM launch command prefix
+                ]]>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="propertyType">
