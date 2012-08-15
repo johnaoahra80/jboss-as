@@ -24,6 +24,9 @@ package org.jboss.as.host.controller.resources;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVER_CONFIG;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND;
+import org.jboss.as.host.controller.model.launchCommand.LaunchCommandAddHandler;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -177,6 +180,18 @@ public class ServerConfigResourceDefinition extends SimpleResourceDefinition {
 
         // Server system properties
         resourceRegistration.registerSubModel(SystemPropertyResourceDefinition.createForDomainOrHost(Location.SERVER_CONFIG));
+
+//        ManagementResourceRegistration serverSysProps = resourceRegistration.registerSubModel(PathElement.pathElement(SYSTEM_PROPERTY), HostDescriptionProviders.SERVER_SYSTEM_PROPERTIES_PROVIDER);
+//        serverSysProps.registerOperationHandler(SystemPropertyAddHandler.OPERATION_NAME, SystemPropertyAddHandler.INSTANCE_WITH_BOOTTIME, SystemPropertyAddHandler.INSTANCE_WITH_BOOTTIME, false);
+//        serverSysProps.registerOperationHandler(SystemPropertyRemoveHandler.OPERATION_NAME, SystemPropertyRemoveHandler.INSTANCE, SystemPropertyRemoveHandler.INSTANCE, false);
+//        serverSysProps.registerReadWriteAttribute(VALUE, null, SystemPropertyValueWriteAttributeHandler.INSTANCE, AttributeAccess.Storage.CONFIGURATION);
+//        serverSysProps.registerReadWriteAttribute(BOOT_TIME, null, new WriteAttributeHandlers.ModelTypeValidatingHandler(ModelType.BOOLEAN), AttributeAccess.Storage.CONFIGURATION);
+
+        // Server launch commands TODO convert to ResourceDefinition
+        ManagementResourceRegistration serverLaunchCommands = resourceRegistration.registerSubModel(PathElement.pathElement(LAUNCH_COMMAND), CommonProviders.SPECIFIED_INTERFACE_PROVIDER);
+        serverLaunchCommands.registerOperationHandler(LaunchCommandAddHandler.OPERATION_NAME, LaunchCommandAddHandler.INSTANCE, LaunchCommandAddHandler.INSTANCE, false);
+        InterfaceCriteriaWriteHandler.CONFIG_ONLY.register(serverLaunchCommands);
+
         // Server jvm
         resourceRegistration.registerSubModel(JvmResourceDefinition.SERVER);
     }

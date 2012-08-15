@@ -64,6 +64,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGN
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.IGNORED_RESOURCE_TYPE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INTERFACE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.JVM;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LAUNCH_COMMAND_PREFIX;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.LOCAL;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MANAGEMENT_INTERFACE;
@@ -82,6 +84,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOC
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SYSTEM_PROPERTY;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.USERNAME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VAULT;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
 import static org.jboss.as.controller.parsing.Namespace.DOMAIN_1_0;
 import static org.jboss.as.controller.parsing.ParseUtils.isNoNamespaceAttribute;
 import static org.jboss.as.controller.parsing.ParseUtils.missingRequired;
@@ -1154,6 +1157,7 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
         boolean sawJvm = false;
         boolean sawSystemProperties = false;
         boolean sawSocketBinding = false;
+        boolean sawLaunchCommand = false;
         final Set<String> interfaceNames = new HashSet<String>();
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             requireNamespace(reader, expectedNs);
@@ -1190,6 +1194,14 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
                     }
                     parseSystemProperties(reader, serverAddress, expectedNs, list, false);
                     sawSystemProperties = true;
+                    break;
+                }
+                case LAUNCH_COMMAND: {
+                    if (sawLaunchCommand) {
+                        throw MESSAGES.alreadyDefined(element.getLocalName(), reader.getLocation());
+                    }
+                    parseLaunchCommand(reader, serverAddress, list);
+                    sawLaunchCommand = true;
                     break;
                 }
                 default:
@@ -1273,6 +1285,45 @@ public class HostXml extends CommonXml implements ManagementXml.Delegate {
 
         // Handle elements
         requireNoContent(reader);
+
+    }
+
+    private void parseLaunchCommand(final XMLExtendedStreamReader reader, final ModelNode address,
+            final List<ModelNode> updates) throws XMLStreamException {
+        // Handle attributes
+        String launchCommandPrefix = null;
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String value = reader.getAttributeValue(i);
+            if (!isNoNamespaceAttribute(reader, i)) {
+                throw ParseUtils.unexpectedAttribute(reader, i);
+            } else {
+                final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+                switch (attribute) {
+                    case PREFIX: {
+                        if (launchCommandPrefix != null)
+                            throw ParseUtils.duplicateAttribute(reader, attribute.getLocalName());
+                        launchCommandPrefix = value;
+                        break;
+                    }
+                    default:
+                        throw unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        // Handle elements
+        requireNoContent(reader);
+
+        if (launchCommandPrefix != null) {
+
+            final ModelNode launchCommandPrefixAdd = new ModelNode();
+            launchCommandPrefixAdd.get(OP_ADDR).set(address).add(LAUNCH_COMMAND, LAUNCH_COMMAND_PREFIX);
+            launchCommandPrefixAdd.get(OP).set(ADD);
+            launchCommandPrefixAdd.get(VALUE).set(launchCommandPrefix);
+            updates.add(launchCommandPrefixAdd);
+
+        }
 
     }
 
