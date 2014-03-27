@@ -26,6 +26,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.WRI
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.AGENT_LIB;
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.AGENT_PATH;
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.ENVIRONMENT_VARIABLES;
+import static org.jboss.as.host.controller.model.jvm.JvmAttributes.LAUNCH_COMMAND;
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.ENV_CLASSPATH_IGNORED;
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.HEAP_SIZE;
 import static org.jboss.as.host.controller.model.jvm.JvmAttributes.JAVA_AGENT;
