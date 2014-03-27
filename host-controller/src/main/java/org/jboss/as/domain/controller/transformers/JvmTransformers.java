@@ -54,7 +54,7 @@ class JvmTransformers {
 
         RejectExpressionValuesTransformer rejectExpression = new RejectExpressionValuesTransformer(AGENT_PATH, HEAP_SIZE, JAVA_HOME, MAX_HEAP_SIZE,
                 PERMGEN_SIZE, MAX_PERMGEN_SIZE,
-                STACK_SIZE, OPTIONS, ENVIRONMENT_VARIABLES, ENV_CLASSPATH_IGNORED, AGENT_LIB, JAVA_AGENT);
+                STACK_SIZE, OPTIONS, ENVIRONMENT_VARIABLES, LAUNCH_COMMAND, ENV_CLASSPATH_IGNORED, AGENT_LIB, JAVA_AGENT);
 
         reg.registerOperationTransformer(ADD, rejectExpression);
         reg.registerOperationTransformer(WRITE_ATTRIBUTE_OPERATION, rejectExpression.getWriteAttributeTransformer());
